@@ -444,6 +444,65 @@ def dict_refs(
 
 
 # ---------------------------------------------------------------------------
+# Alternative translations (e.g. Buddha Jayanthi) — table: translations
+# ---------------------------------------------------------------------------
+TRANSLATION_LABELS = {
+    "bjt": "Buddha Jayanthi Tripitaka (1957)",
+    "soyza": "De Zoysa translation",
+}
+
+
+class TranslationSegment(BaseModel):
+    seq: int
+    tag: str
+    content: str
+
+
+class TranslationResult(BaseModel):
+    source: str
+    label: str
+    segments: list[TranslationSegment]
+
+
+@app.get("/api/suttas/{source_id}/translations")
+def sutta_translations(source_id: int) -> dict:
+    """Which alternative translations are available for this sutta."""
+    with pool.connection() as conn:
+        row = conn.execute("SELECT id FROM suttas WHERE source_id = %s", (source_id,)).fetchone()
+        if not row:
+            raise HTTPException(404, f"no sutta with source_id {source_id}")
+        srcs = [r[0] for r in conn.execute(
+            "SELECT DISTINCT source FROM translations WHERE sutta_id = %s ORDER BY 1", (row[0],)
+        ).fetchall()]
+    return {
+        "default": "mahamevnawa",
+        "available": [
+            {"source": s, "label": TRANSLATION_LABELS.get(s, s)} for s in srcs
+        ],
+    }
+
+
+@app.get("/api/suttas/{source_id}/translation", response_model=TranslationResult)
+def sutta_translation(source_id: int, source: str = Query("bjt")) -> TranslationResult:
+    with pool.connection() as conn:
+        row = conn.execute("SELECT id FROM suttas WHERE source_id = %s", (source_id,)).fetchone()
+        if not row:
+            raise HTTPException(404, f"no sutta with source_id {source_id}")
+        segs = conn.execute(
+            "SELECT seq, tag, content FROM translations "
+            "WHERE sutta_id = %s AND source = %s ORDER BY seq",
+            (row[0], source),
+        ).fetchall()
+    if not segs:
+        raise HTTPException(404, f"no '{source}' translation for sutta {source_id}")
+    return TranslationResult(
+        source=source,
+        label=TRANSLATION_LABELS.get(source, source),
+        segments=[TranslationSegment(seq=r[0], tag=r[1], content=r[2]) for r in segs],
+    )
+
+
+# ---------------------------------------------------------------------------
 # SPA serving (built React app in web/dist)
 # ---------------------------------------------------------------------------
 @app.get("/{full_path:path}", include_in_schema=False)

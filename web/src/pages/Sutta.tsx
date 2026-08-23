@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { api, type Neighbors, type SuttaDetail } from '../api'
+import { api, type Neighbors, type SuttaDetail, type TranslationResult, type SuttaTranslations } from '../api'
 import Reader from '../components/Reader'
 
 export default function Sutta() {
@@ -8,6 +8,8 @@ export default function Sutta() {
   const id = Number(sourceId)
   const [data, setData] = useState<SuttaDetail | null>(null)
   const [neighbors, setNeighbors] = useState<Neighbors | null>(null)
+  const [translations, setTranslations] = useState<SuttaTranslations | null>(null)
+  const [translation, setTranslation] = useState<TranslationResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -17,6 +19,8 @@ export default function Sutta() {
     }
     let alive = true
     setData(null)
+    setTranslation(null)
+    setTranslations(null)
     setError(null)
     api
       .sutta(id)
@@ -26,10 +30,27 @@ export default function Sutta() {
       .neighbors(id)
       .then((n) => alive && setNeighbors(n))
       .catch(() => {})
+    api
+      .suttaTranslations(id)
+      .then((t) => alive && setTranslations(t))
+      .catch(() => {})
     return () => {
       alive = false
     }
   }, [id])
+
+  async function selectTranslation(source: string) {
+    if (source === 'mahamevnawa') {
+      setTranslation(null)
+      return
+    }
+    setTranslation(null)
+    try {
+      setTranslation(await api.suttaTranslation(id, source))
+    } catch (e) {
+      setError(String(e))
+    }
+  }
 
   if (error) {
     return (
@@ -44,6 +65,8 @@ export default function Sutta() {
   if (!data) {
     return <div className="mx-auto max-w-3xl px-4 py-16" style={{ color: 'var(--muted)' }}>Loading…</div>
   }
+
+  const hasAlt = translations && translations.available.length > 0
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
@@ -79,6 +102,40 @@ export default function Sutta() {
             Original ↗
           </a>
         </div>
+
+        {hasAlt && (
+          <div className="mt-4 flex flex-wrap items-center gap-1.5 text-sm">
+            <span className="mr-1" style={{ color: 'var(--muted)' }}>
+              Translation:
+            </span>
+            <button
+              onClick={() => selectTranslation('mahamevnawa')}
+              className="rounded-full border px-3 py-1 text-xs font-medium transition"
+              style={
+                !translation
+                  ? { background: 'var(--brand)', color: 'var(--brand-ink)', borderColor: 'var(--brand)' }
+                  : { borderColor: 'var(--line)' }
+              }
+            >
+              Mahamevnawa
+            </button>
+            {translations!.available.map((t) => (
+              <button
+                key={t.source}
+                onClick={() => selectTranslation(t.source)}
+                title={t.label}
+                className="rounded-full border px-3 py-1 text-xs font-medium transition"
+                style={
+                  translation?.source === t.source
+                    ? { background: 'var(--brand)', color: 'var(--brand-ink)', borderColor: 'var(--brand)' }
+                    : { borderColor: 'var(--line)' }
+                }
+              >
+                {t.label.split(' ')[0]}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mb-6 flex items-center justify-between gap-2 text-sm">
@@ -98,7 +155,7 @@ export default function Sutta() {
         )}
       </div>
 
-      <Reader blocks={data.blocks} />
+      <Reader blocks={data.blocks} translation={translation} />
     </div>
   )
 }

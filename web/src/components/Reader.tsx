@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { Block } from '../api'
+import type { Block, TranslationResult } from '../api'
 import DictPopup from './DictPopup'
 import PaliWords, { type WordPick } from './PaliWords'
 
@@ -55,7 +55,13 @@ const HEADING_SIZES: Record<string, string> = {
   h3: 'text-base md:text-lg',
 }
 
-export default function Reader({ blocks }: { blocks: Block[] }) {
+export default function Reader({
+  blocks,
+  translation = null,
+}: {
+  blocks: Block[]
+  translation?: TranslationResult | null
+}) {
   const [mode, setMode] = useState<'side' | 'interleaved'>('side')
   const [pick, setPick] = useState<WordPick | null>(null)
   const rows = useMemo(() => buildRows(blocks), [blocks])
@@ -63,6 +69,30 @@ export default function Reader({ blocks }: { blocks: Block[] }) {
   // Pali paragraphs render clickable words; Sinhala stays plain.
   const paliBody = (text: string) => <PaliWords text={text} onPick={setPick} />
   const sinhalaBody = (text: string) => <p className="font-tipitaka">{text}</p>
+
+  if (translation) {
+    // alternate translation view (e.g. Buddha Jayanthi)
+    return (
+      <div>
+        {pick && <DictPopup pick={pick} onClose={() => setPick(null)} />}
+        <div className="mb-4 rounded-lg border p-3 text-sm" style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}>
+          <b>{translation.label}</b> — Sinhala translation (Pali text above is from
+          the Mahamevnawa edition; paragraph breaks follow the source edition).
+        </div>
+        {translation.segments.map((s) =>
+          s.tag === 'heading' ? (
+            <div key={s.seq} className="font-tipitaka mt-5 mb-3 text-center text-lg font-semibold">
+              {s.content}
+            </div>
+          ) : (
+            <p key={s.seq} className="font-tipitaka mb-4">
+              {s.content}
+            </p>
+          ),
+        )}
+      </div>
+    )
+  }
 
   return (
     <div>

@@ -271,6 +271,35 @@ aliases, inflected corpus forms (`සුතං`, `මෙත්තාය`) hit th
 > redistribution); the Pali-Sinhala JSON files carry no explicit license in
 > the source repos. This mirror is for personal/local use.
 
+## Multiple translations
+
+Inside a sutta, the reader shows a **Translation** selector. Besides the
+default **Mahamevnawa** translation, alternative Sinhala translations are
+downloaded and selectable:
+
+| Translation | Coverage | Source |
+|---|---|---|
+| Mahamevnawa (default) | all 4,154 suttas | tripitaka.online API (built-in) |
+| **Buddha Jayanthi Tripitaka** (1957) | 3,592 suttas | [pathnirvana/tipitaka.lk](https://github.com/pathnirvana/tipitaka.lk) — `data.zip` (BJT Pali + Sinhala SQLite) |
+| **De Zoysa (Soyza)** | — (no online text found; button is wired for future data) | book scans only, e.g. National Library of Sri Lanka |
+
+```bash
+make translations-download   # fetch data.zip (~180 MB) -> data/translations/
+make translations-import     # align by Pali text + import into PostgreSQL
+```
+
+`translations_import.py` matches each of our suttas to the BJT edition by
+anchoring its Pali text (transliterated to a diacritic-insensitive Roman key,
+scoped to the right book file) and storing the BJT Sinhala segments in the
+`translations` table. The two editions differ slightly in how paragraphs are
+split, so counts can vary a little between translations.
+
+> **De Zoysa / "Soyza"**: the first complete Sinhala Tripitaka translation
+> (A. P. de Zoysa) exists only as scanned books online — no structured text
+> was found to download. The button and storage are ready; as soon as a text
+> source appears, drop it into `scripts/translations_import.py` (or a new
+> importer) with `source='soyza'`.
+
 ---
 
 ## Database schema

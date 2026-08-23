@@ -102,6 +102,23 @@ export interface DictRefs {
   suttas: SuttaRef[]
 }
 
+export interface TranslationSegment {
+  seq: number
+  tag: string
+  content: string
+}
+
+export interface TranslationResult {
+  source: string
+  label: string
+  segments: TranslationSegment[]
+}
+
+export interface SuttaTranslations {
+  default: string
+  available: { source: string; label: string }[]
+}
+
 function qs(params: Record<string, string | number | undefined>): string {
   const sp = new URLSearchParams()
   for (const [k, v] of Object.entries(params)) {
@@ -138,6 +155,10 @@ export const api = {
     j<SearchResult>(`/api/search${qs(p)}`),
   dict: (word: string) => j<DictResult>(`/api/dict?word=${encodeURIComponent(word)}`),
   dictRefs: (word: string) => j<DictRefs>(`/api/dict/refs?word=${encodeURIComponent(word)}`),
+  suttaTranslations: (sourceId: number) =>
+    j<SuttaTranslations>(`/api/suttas/${sourceId}/translations`),
+  suttaTranslation: (sourceId: number, source: string) =>
+    j<TranslationResult>(`/api/suttas/${sourceId}/translation?source=${encodeURIComponent(source)}`),
 }
 
 // Human-readable nikāya names for book prefixes.

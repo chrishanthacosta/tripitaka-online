@@ -7,7 +7,7 @@ PYTHON := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo pytho
 # Note: avoid ports on browsers' restricted list (e.g. 6000 = X11, 6665-6669).
 PORT ?= 8080
 
-.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build
+.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build translations-download translations-import
 
 # --- data pipeline ---------------------------------------------------------
 venv:           ## create a venv (auto-bootstraps pip if ensurepip is missing)
@@ -32,6 +32,12 @@ dict-download:  ## download all dictionaries -> data/dicts/raw/
 
 dict-build:     ## build unified dictionary db (data/dicts/dicts.sqlite)
 	$(PYTHON) scripts/dict_build.py
+
+translations-download:  ## fetch Buddha Jayanthi data (tipitaka.lk data.zip, ~180 MB)
+	$(PYTHON) scripts/translations_download.py
+
+translations-import:    ## map + import the BJT Sinhala translation into PostgreSQL
+	$(PYTHON) scripts/translations_import.py
 
 all: crawl load export verify
 

@@ -42,3 +42,17 @@ SELECT s.id, s.source_id, s.link, s.book, s.label, s.url,
 FROM suttas s
 JOIN blocks b ON b.sutta_id = s.id
 ORDER BY s.id, b.seq;
+
+-- Alternative Sinhala translations of a sutta (e.g. 'bjt' = Buddha Jayanthi).
+-- Imported by scripts/translations_import.py from the tipitaka.lk dataset.
+CREATE TABLE IF NOT EXISTS translations (
+    id       bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sutta_id bigint NOT NULL REFERENCES suttas(id) ON DELETE CASCADE,
+    source   text NOT NULL,              -- 'bjt' | 'soyza' | ...
+    seq      integer NOT NULL,           -- order within the translation
+    tag      text NOT NULL DEFAULT 'p',  -- heading | paragraph | centered
+    content  text NOT NULL,
+    UNIQUE (sutta_id, source, seq)
+);
+CREATE INDEX IF NOT EXISTS translations_sutta_source_idx
+    ON translations (sutta_id, source);
