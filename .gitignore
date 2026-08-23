@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Crawled / derived data (large, reproducible from raw/)
+data/raw/
+data/texts/
+data/dicts/
+data/translations/
+site/           # static export for GitHub Pages (published via gh-pages branch)
+logs/
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Local env
+.env
