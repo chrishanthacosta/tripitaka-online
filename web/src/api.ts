@@ -111,7 +111,8 @@ export interface TranslationSegment {
 export interface TranslationResult {
   source: string
   label: string
-  segments: TranslationSegment[]
+  pali: TranslationSegment[]
+  sinhala: TranslationSegment[]
 }
 
 export interface SuttaTranslations {

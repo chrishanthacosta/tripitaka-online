@@ -71,25 +71,42 @@ export default function Reader({
   const sinhalaBody = (text: string) => <p className="font-tipitaka">{text}</p>
 
   if (translation) {
-    // alternate translation view (e.g. Buddha Jayanthi)
+    // alternate translation view (e.g. Buddha Jayanthi): its own Pali and
+    // Sinhala, aligned segment by segment
+    const pali = translation.pali
+    const sinhala = translation.sinhala
+    const n = Math.max(pali.length, sinhala.length)
     return (
       <div>
         {pick && <DictPopup pick={pick} onClose={() => setPick(null)} />}
         <div className="mb-4 rounded-lg border p-3 text-sm" style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}>
-          <b>{translation.label}</b> — Sinhala translation (Pali text above is from
-          the Mahamevnawa edition; paragraph breaks follow the source edition).
+          <b>{translation.label}</b> — Pali and Sinhala from the same edition,
+          aligned paragraph by paragraph. Click any Pāli word for dictionary lookups.
         </div>
-        {translation.segments.map((s) =>
-          s.tag === 'heading' ? (
-            <div key={s.seq} className="font-tipitaka mt-5 mb-3 text-center text-lg font-semibold">
-              {s.content}
+        {Array.from({ length: n }, (_, i) => {
+          const p = pali[i]
+          const s = sinhala[i]
+          const isHeading = (p?.tag ?? s?.tag) === 'heading'
+          if (isHeading) {
+            return (
+              <div key={i} className="font-tipitaka mt-5 mb-3 text-center text-lg font-semibold">
+                {(s?.content || p?.content || '').replace(/^\d+\.\s*/, '')}
+              </div>
+            )
+          }
+          return (
+            <div key={i} className="mb-5 grid gap-5 md:grid-cols-2">
+              <div className="rounded-lg p-3" style={{ background: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <LangBadge lang="pali" />
+                <div className="font-tipitaka">{p ? paliBody(p.content) : ''}</div>
+              </div>
+              <div className="rounded-lg p-3" style={{ background: 'var(--panel)', border: '1px solid var(--line)' }}>
+                <LangBadge lang="sinhala" />
+                <div className="font-tipitaka">{s ? sinhalaBody(s.content) : ''}</div>
+              </div>
             </div>
-          ) : (
-            <p key={s.seq} className="font-tipitaka mb-4">
-              {s.content}
-            </p>
-          ),
-        )}
+          )
+        })}
       </div>
     )
   }

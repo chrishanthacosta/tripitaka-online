@@ -49,10 +49,11 @@ CREATE TABLE IF NOT EXISTS translations (
     id       bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sutta_id bigint NOT NULL REFERENCES suttas(id) ON DELETE CASCADE,
     source   text NOT NULL,              -- 'bjt' | 'soyza' | ...
+    lang     text NOT NULL DEFAULT 'sinhala',  -- 'pali' | 'sinhala'
     seq      integer NOT NULL,           -- order within the translation
     tag      text NOT NULL DEFAULT 'p',  -- heading | paragraph | centered
     content  text NOT NULL,
-    UNIQUE (sutta_id, source, seq)
+    UNIQUE (sutta_id, source, lang, seq)
 );
 CREATE INDEX IF NOT EXISTS translations_sutta_source_idx
     ON translations (sutta_id, source);

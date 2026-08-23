@@ -368,14 +368,18 @@ def main() -> int:
                 return 0
 
             # assign end indices per file (next matched start or last segment)
-            conn.execute("CREATE TABLE IF NOT EXISTS translations ("
-                         "id BIGSERIAL PRIMARY KEY,"
-                         "sutta_id BIGINT NOT NULL REFERENCES suttas(id) ON DELETE CASCADE,"
-                         "source TEXT NOT NULL,"
-                         "seq INT NOT NULL,"
-                         "tag TEXT NOT NULL DEFAULT 'p',"
-                         "content TEXT NOT NULL,"
-                         "UNIQUE (sutta_id, source, seq))")
+            # create/alter the translations table (lang column distinguishes
+            # the BJT Pali from the BJT Sinhala segments)
+            conn.execute("""CREATE TABLE IF NOT EXISTS translations (
+                id BIGSERIAL PRIMARY KEY,
+                sutta_id BIGINT NOT NULL REFERENCES suttas(id) ON DELETE CASCADE,
+                source TEXT NOT NULL,
+                lang TEXT NOT NULL DEFAULT 'sinhala',
+                seq INT NOT NULL,
+                tag TEXT NOT NULL DEFAULT 'p',
+                content TEXT NOT NULL,
+                UNIQUE (sutta_id, source, lang, seq))""")
+            conn.execute("ALTER TABLE translations ADD COLUMN IF NOT EXISTS lang TEXT NOT NULL DEFAULT 'sinhala'")
             conn.execute("DELETE FROM translations WHERE source = 'bjt'")
 
             total_rows = 0
@@ -387,19 +391,22 @@ def main() -> int:
                     if not row:
                         continue
                     sutta_pk = row[0]
-                    seq = 0
-                    for s in segs[start_idx:end_idx]:
-                        if s["lang"] != "sinh":
-                            continue
-                        cur.execute(
-                            "INSERT INTO translations (sutta_id, source, seq, tag, content) "
-                            "VALUES (%s, 'bjt', %s, %s, %s)",
-                            (sutta_pk, seq, s["type"], s["text"]),
-                        )
-                        seq += 1
-                        total_rows += 1
+                    # store BOTH languages (BJT Pali + BJT Sinhala) so the reader
+                    # can show them side by side, aligned segment by segment
+                    for lang, langcode in (("pali", "pali"), ("sinh", "sinhala")):
+                        seq = 0
+                        for s in segs[start_idx:end_idx]:
+                            if s["lang"] != lang:
+                                continue
+                            cur.execute(
+                                "INSERT INTO translations (sutta_id, source, lang, seq, tag, content) "
+                                "VALUES (%s, 'bjt', %s, %s, %s, %s)",
+                                (sutta_pk, langcode, seq, s["type"], s["text"]),
+                            )
+                            seq += 1
+                            total_rows += 1
             conn.commit()
-            print(f"inserted {total_rows} BJT translation rows")
+            print(f"inserted {total_rows} BJT translation rows (pali + sinhala)")
     return 0
 
 

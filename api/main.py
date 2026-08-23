@@ -461,7 +461,8 @@ class TranslationSegment(BaseModel):
 class TranslationResult(BaseModel):
     source: str
     label: str
-    segments: list[TranslationSegment]
+    pali: list[TranslationSegment]
+    sinhala: list[TranslationSegment]
 
 
 @app.get("/api/suttas/{source_id}/translations")
@@ -489,16 +490,19 @@ def sutta_translation(source_id: int, source: str = Query("bjt")) -> Translation
         if not row:
             raise HTTPException(404, f"no sutta with source_id {source_id}")
         segs = conn.execute(
-            "SELECT seq, tag, content FROM translations "
+            "SELECT lang, seq, tag, content FROM translations "
             "WHERE sutta_id = %s AND source = %s ORDER BY seq",
             (row[0], source),
         ).fetchall()
     if not segs:
         raise HTTPException(404, f"no '{source}' translation for sutta {source_id}")
+    pali = [TranslationSegment(seq=r[1], tag=r[2], content=r[3]) for r in segs if r[0] == "pali"]
+    sinhala = [TranslationSegment(seq=r[1], tag=r[2], content=r[3]) for r in segs if r[0] == "sinhala"]
     return TranslationResult(
         source=source,
         label=TRANSLATION_LABELS.get(source, source),
-        segments=[TranslationSegment(seq=r[0], tag=r[1], content=r[2]) for r in segs],
+        pali=pali,
+        sinhala=sinhala,
     )
 
 
