@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (toggled on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #faf9f6;
+  --panel: #ffffff;
+  --ink: #1c1917;
+  --muted: #78716c;
+  --line: #e7e5e4;
+  --brand: #b45309;
+  --brand-ink: #fff7ed;
+}
+
+.dark {
+  --bg: #171512;
+  --panel: #211e1a;
+  --ink: #e7e5e4;
+  --muted: #a8a29e;
+  --line: #3a352f;
+  --brand: #d97706;
+  --brand-ink: #1c1206;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Noto Sans", sans-serif;
+}
+
+/* Sinhala/Pali reading text */
+.font-tipitaka {
+  font-family: "Noto Sans Sinhala", "Iskoola Pota", "Nirmala UI", "Segoe UI",
+    sans-serif;
+  line-height: 1.9;
+  overflow-wrap: break-word;
+}
+
+mark {
+  background: #fde68a;
+  color: #451a03;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.dark mark {
+  background: #78350f;
+  color: #fef3c7;
+}

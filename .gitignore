@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Crawled / derived data (large, reproducible from raw/)
+data/raw/
+data/texts/
+data/dicts/
+logs/
+
+# Frontend
+web/node_modules/
+web/dist/
+
+# Local env
+.env
