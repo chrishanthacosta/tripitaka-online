@@ -8,7 +8,7 @@ data/raw/
 data/texts/
 data/dicts/
 data/translations/
-site/           # static export for GitHub Pages (published via gh-pages branch)
+site/
 logs/
 
 # Frontend
