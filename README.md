@@ -130,6 +130,24 @@ make api        # terminal 1: FastAPI on :8080 (--reload)
 make web-dev    # terminal 2: Vite dev server on :5173, proxies /api → :8080
 ```
 
+## Live website (GitHub Pages)
+
+The mirror is published as a **static website** — no server needed:
+
+### **https://chrishanthacosta.github.io/tripitaka-online/**
+
+All 4,154 suttas, both translations, dictionary word popups and word search
+work in the browser (client-side data). Rebuild + republish:
+
+```bash
+make site           # VITE_STATIC build + export -> site/  (needs db up)
+make site-publish   # push site/ to the gh-pages branch (Pages auto-builds)
+```
+
+For the **full-stack** version (server-side search + live updates) instead:
+sign up at [Render](https://render.com) → New Web Service → your GitHub repo
+→ Render builds and runs FastAPI + Postgres automatically.
+
 ---
 
 ## Makefile targets

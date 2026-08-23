@@ -39,6 +39,19 @@ translations-download:  ## fetch Buddha Jayanthi data (tipitaka.lk data.zip, ~18
 translations-import:    ## map + import the BJT Sinhala translation into PostgreSQL
 	$(PYTHON) scripts/translations_import.py
 
+site:           ## build the static site (VITE_STATIC bundle + export -> site/)
+	cd web && VITE_STATIC=1 pnpm build
+	$(PYTHON) scripts/static_export.py
+
+site-publish:   ## publish site/ to the gh-pages branch (GitHub Pages)
+	git checkout --orphan gh-pages
+	git rm -rf -q .
+	cp -r site/. .
+	git add -A
+	git commit -m "Static site update"
+	git push -f origin gh-pages
+	git checkout main
+
 all: crawl load export verify
 
 # --- database --------------------------------------------------------------
