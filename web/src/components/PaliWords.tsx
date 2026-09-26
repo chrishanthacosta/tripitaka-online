@@ -6,6 +6,7 @@ export interface WordPick {
   word: string
   x: number
   y: number
+  context?: string // the paragraph the word was clicked in
 }
 
 // Word = run of Sinhala/Latin letters incl. combining marks and ZWJ/ZWNJ.
@@ -47,7 +48,7 @@ function PaliWords({ text, onPick }: { text: string; onPick: (p: WordPick) => vo
               e.preventDefault()
               e.stopPropagation()
               const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-              onPick({ word, x: r.left + r.width / 2, y: r.bottom + 6 })
+              onPick({ word, x: r.left + r.width / 2, y: r.bottom + 6, context: text })
             }}
             onKeyDown={(e: KeyboardEvent) => {
               if (!word) return
@@ -55,7 +56,7 @@ function PaliWords({ text, onPick }: { text: string; onPick: (p: WordPick) => vo
                 e.preventDefault()
                 e.stopPropagation()
                 const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                onPick({ word, x: r.left + r.width / 2, y: r.bottom + 6 })
+                onPick({ word, x: r.left + r.width / 2, y: r.bottom + 6, context: text })
               }
             }}
           >

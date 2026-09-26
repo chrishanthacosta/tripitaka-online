@@ -320,6 +320,26 @@ split, so counts can vary a little between translations.
 
 ---
 
+## AI Pāli grammar chat
+
+In the dictionary popup, **✦ AI** opens a chat about the clicked word, powered
+by DeepSeek. It sends the word, the paragraph it came from and the dictionary
+entries along with each question. The assistant only answers questions about
+the Pāli language; the system prompt that enforces this lives on the server
+(`api/ai.py`). You can save a whole chat or single messages, and download them
+as Markdown. They are kept in the browser (localStorage) and listed under 🔖
+(`#/saved`).
+
+The DeepSeek key stays on the server and is never put in the frontend bundle:
+
+- **Full-stack:** `POST /api/ai/chat` is part of `api.main`. Set
+  `DEEPSEEK_API_KEY` in the environment before running `make api`.
+- **Static site:** run just the proxy,
+  `DEEPSEEK_API_KEY=... uvicorn api.ai_app:app --host 127.0.0.1 --port 8091`,
+  and have the web server proxy `/api/ai/` to it. On a host with no backend,
+  such as GitHub Pages, the AI panel says the service is unavailable. To call a
+  proxy on another origin, set `VITE_AI_URL` at build time.
+
 ## Database schema
 
 ```sql
