@@ -49,6 +49,16 @@ export default function Header() {
           />
         </form>
 
+        <Link
+          to="/saved"
+          className="rounded-lg border px-2.5 py-1.5 text-sm"
+          style={{ borderColor: 'var(--line)' }}
+          title="Saved AI chats and messages"
+          aria-label="Saved AI chats and messages"
+        >
+          🔖
+        </Link>
+
         <button
           onClick={toggle}
           className="rounded-lg border px-2.5 py-1.5 text-sm"

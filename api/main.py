@@ -8,6 +8,7 @@ Serves the React frontend (web/dist) when built, plus a JSON API:
     GET /api/suttas/{id}           one sutta with ordered blocks
     GET /api/suttas/{id}/neighbors prev/next sutta within the same book
     GET /api/search?q=&lang=&...   block-level substring search (pg_trgm/ILIKE)
+    POST /api/ai/chat              Pali-grammar AI chat (DeepSeek proxy, api/ai.py)
 
 Run (dev):
     uvicorn api.main:app --reload --port 8080
@@ -28,6 +29,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+from api.ai import router as ai_router  # noqa: E402
 from api.db import open_pool, pool  # noqa: E402
 from dict_common import clean_si_word, roman_key, si2roman, strip_zw  # noqa: E402
 
@@ -66,6 +68,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# POST /api/ai/chat — Pali-grammar chat via DeepSeek (see api/ai.py)
+app.include_router(ai_router)
 
 
 # ---------------------------------------------------------------------------

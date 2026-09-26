@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
@@ -5,6 +6,8 @@ import Home from './pages/Home'
 import Book from './pages/Book'
 import Sutta from './pages/Sutta'
 import Search from './pages/Search'
+
+const Saved = lazy(() => import('./pages/Saved'))
 
 export default function App() {
   return (
@@ -17,6 +20,7 @@ export default function App() {
             <Route path="/book/:book" element={<Book />} />
             <Route path="/sutta/:sourceId" element={<Sutta />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/saved" element={<Suspense fallback={null}><Saved /></Suspense>} />
             <Route path="*" element={<Home />} />
           </Routes>
         </main>
