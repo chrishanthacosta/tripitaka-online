@@ -139,7 +139,7 @@ make web-dev    # terminal 2: Vite dev server on :5173, proxies /api → :8080
 
 ### **https://tp.swarmerp.com/**
 
-The main site is the static build (`site/`), served by nginx on a VM from
+The site is the static build (`site/`), served by nginx on a VM from
 `/var/www/tripitaka`. nginx also proxies `/api/ai/` to the AI chat backend on
 `127.0.0.1:8091`. To rebuild and deploy (the database must be up):
 
@@ -152,19 +152,9 @@ make deploy         # make site, then rsync site/ to the server
 OpenSSH and saved as `~/.ssh/ceyinfo_openclaw_rsa`. To use a different host,
 key or path, set `DEPLOY_HOST`, `DEPLOY_KEY` or `DEPLOY_DIR`.
 
-### GitHub Pages copy
-
-The same static site is also published at:
-
-### **https://chrishanthacosta.github.io/tripitaka-online/**
-
 All 4,154 suttas, both translations, dictionary word popups and word search
-work in the browser (client-side data). Rebuild + republish:
-
-```bash
-make site           # VITE_STATIC build + export -> site/  (needs db up)
-make site-publish   # push site/ to the gh-pages branch (Pages auto-builds)
-```
+work in the browser (client-side data), so `site/` can be served by any
+static web server.
 
 For the **full-stack** version (server-side search + live updates) instead:
 sign up at [Render](https://render.com) → New Web Service → your GitHub repo
@@ -190,7 +180,6 @@ sign up at [Render](https://render.com) → New Web Service → your GitHub repo
 | `make site` | Build the static site (`VITE_STATIC` bundle + data export) → `site/` |
 | `make deploy` | `make site`, then rsync `site/` to the live server (tp.swarmerp.com) |
 | `make deploy-dry` | Show what `make deploy` would change on the server |
-| `make site-publish` | Push `site/` to the `gh-pages` branch (GitHub Pages copy) |
 
 ---
 
@@ -362,8 +351,8 @@ The DeepSeek key stays on the server and is never put in the frontend bundle:
   `DEEPSEEK_API_KEY` in the environment before running `make api`.
 - **Static site:** run just the proxy,
   `DEEPSEEK_API_KEY=... uvicorn api.ai_app:app --host 127.0.0.1 --port 8091`,
-  and have the web server proxy `/api/ai/` to it. On a host with no backend,
-  such as GitHub Pages, the AI panel says the service is unavailable. To call a
+  and have the web server proxy `/api/ai/` to it. On a static host with no
+  backend, the AI panel says the service is unavailable. To call a
   proxy on another origin, set `VITE_AI_URL` at build time.
 
 ## Database schema

@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // relative base so the built app works under a sub-path (GitHub Pages) and at root
+  // relative base so the built app works under a sub-path and at root
   base: './',
   plugins: [react(), tailwindcss()],
   server: {

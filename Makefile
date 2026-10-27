@@ -14,7 +14,7 @@ DEPLOY_DIR ?= /var/www/tripitaka
 RSYNC_DEPLOY = rsync -a --delete-after --chown=www-data:www-data \
 	-e "ssh -i $(DEPLOY_KEY) -o IdentitiesOnly=yes" site/ $(DEPLOY_HOST):$(DEPLOY_DIR)/
 
-.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build translations-download translations-import site site-publish deploy deploy-dry
+.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build translations-download translations-import site deploy deploy-dry
 
 # --- data pipeline ---------------------------------------------------------
 venv:           ## create a venv (auto-bootstraps pip if ensurepip is missing)
@@ -49,16 +49,6 @@ translations-import:    ## map + import the BJT Sinhala translation into Postgre
 site:           ## build the static site (VITE_STATIC bundle + export -> site/)
 	cd web && VITE_STATIC=1 pnpm build
 	$(PYTHON) scripts/static_export.py
-
-site-publish:   ## publish site/ to the gh-pages branch (GitHub Pages)
-	git branch -D gh-pages 2>/dev/null || true
-	git checkout --orphan gh-pages
-	git rm -rf -q .
-	cp -r site/. .
-	git add -A
-	git commit -m "Static site update"
-	git push -f origin gh-pages
-	git checkout main
 
 deploy: site    ## build the static site and rsync it to the live server (tp.swarmerp.com)
 	$(RSYNC_DEPLOY) --stats
