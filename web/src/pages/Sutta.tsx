@@ -155,7 +155,7 @@ export default function Sutta() {
         )}
       </div>
 
-      <Reader blocks={data.blocks} translation={translation} />
+      <Reader blocks={data.blocks} translation={translation} speechId={`sutta-${id}`} />
     </div>
   )
 }

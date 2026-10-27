@@ -40,6 +40,11 @@ JSON from `/api/sutta/{id}` — that is what this project consumes.
   (Dīgha, Majjhima, Saṃyutta, Aṅguttara, Khuddaka Nikāyas + unlinked).
 - **Web reader** — browse by nikāya/book, read suttas **Pali | Sinhala
   side-by-side** (or interleaved), prev/next navigation, dark mode.
+- **Read aloud** — listen to the Sinhala, the Pāli, or both alternating, with
+  a choice of voice, speed (separately for Pāli), pitch and volume. Uses the
+  browser's speech engine: open the site in **Microsoft Edge**, which has
+  Sinhala voices (most other browsers don't). Pāli is read by the Sinhala
+  voice, since it is written in Sinhala script.
 - **Search** — block-level substring search over Pali and Sinhala text
   (Postgres `pg_trgm`), grouped by sutta with highlighting.
 - **Resumable, idempotent pipeline** — re-running any step only processes what
