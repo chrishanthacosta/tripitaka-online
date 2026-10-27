@@ -4,7 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 
-// HashRouter so deep links work on static hosts (GitHub Pages) as well as on
+// HashRouter so deep links work on static hosts as well as on
 // the FastAPI server.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

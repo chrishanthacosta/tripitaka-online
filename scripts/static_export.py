@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the whole mirror to a static site (for GitHub Pages / any static host).
+"""Export the whole mirror to a static site (servable by any static host).
 
 Reads PostgreSQL and writes:
 
@@ -12,7 +12,7 @@ Reads PostgreSQL and writes:
     site/data/search.json                (word -> suttas posting index)
 
 The web app is built with VITE_STATIC=1 so it reads ./data/… instead of the
-FastAPI backend. Total data ~150-250 MB — within GitHub Pages limits.
+FastAPI backend. Total data ~150-250 MB.
 
 Usage:
     VITE_STATIC=1 pnpm --dir web build          # build the static bundle first

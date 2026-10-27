@@ -179,7 +179,7 @@ const liveApi: ApiClient = {
 
 // ---------------------------------------------------------------------------
 // Static mode (VITE_STATIC=1): the whole app reads ./data/… files instead of
-// the FastAPI backend — used for the GitHub Pages build.
+// the FastAPI backend — used for the static site build (make site).
 // ---------------------------------------------------------------------------
 const STATIC = import.meta.env.VITE_STATIC === '1'
 
