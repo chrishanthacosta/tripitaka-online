@@ -40,6 +40,11 @@ JSON from `/api/sutta/{id}` — that is what this project consumes.
   (Dīgha, Majjhima, Saṃyutta, Aṅguttara, Khuddaka Nikāyas + unlinked).
 - **Web reader** — browse by nikāya/book, read suttas **Pali | Sinhala
   side-by-side** (or interleaved), prev/next navigation, dark mode.
+- **Read aloud** — listen to the Sinhala, the Pāli, or both alternating, with
+  a choice of voice, speed (separately for Pāli), pitch and volume. Uses the
+  browser's speech engine: open the site in **Microsoft Edge**, which has
+  Sinhala voices (most other browsers don't). Pāli is read by the Sinhala
+  voice, since it is written in Sinhala script.
 - **Search** — block-level substring search over Pali and Sinhala text
   (Postgres `pg_trgm`), grouped by sutta with highlighting.
 - **Resumable, idempotent pipeline** — re-running any step only processes what
@@ -130,9 +135,26 @@ make api        # terminal 1: FastAPI on :8080 (--reload)
 make web-dev    # terminal 2: Vite dev server on :5173, proxies /api → :8080
 ```
 
-## Live website (GitHub Pages)
+## Live website
 
-The mirror is published as a **static website** — no server needed:
+### **https://tp.swarmerp.com/**
+
+The main site is the static build (`site/`), served by nginx on a VM from
+`/var/www/tripitaka`. nginx also proxies `/api/ai/` to the AI chat backend on
+`127.0.0.1:8091`. To rebuild and deploy (the database must be up):
+
+```bash
+make deploy-dry     # optional: list what would change on the server
+make deploy         # make site, then rsync site/ to the server
+```
+
+`make deploy` needs SSH access as root with the server key, converted for
+OpenSSH and saved as `~/.ssh/ceyinfo_openclaw_rsa`. To use a different host,
+key or path, set `DEPLOY_HOST`, `DEPLOY_KEY` or `DEPLOY_DIR`.
+
+### GitHub Pages copy
+
+The same static site is also published at:
 
 ### **https://chrishanthacosta.github.io/tripitaka-online/**
 
@@ -165,6 +187,10 @@ sign up at [Render](https://render.com) → New Web Service → your GitHub repo
 | `make web-dev` | Vite dev server on :5173 |
 | `make web-build` | Production build → `web/dist` |
 | `make web` | Build frontend, then serve everything on :8080 |
+| `make site` | Build the static site (`VITE_STATIC` bundle + data export) → `site/` |
+| `make deploy` | `make site`, then rsync `site/` to the live server (tp.swarmerp.com) |
+| `make deploy-dry` | Show what `make deploy` would change on the server |
+| `make site-publish` | Push `site/` to the `gh-pages` branch (GitHub Pages copy) |
 
 ---
 

@@ -7,7 +7,14 @@ PYTHON := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo pytho
 # Note: avoid ports on browsers' restricted list (e.g. 6000 = X11, 6665-6669).
 PORT ?= 8080
 
-.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build translations-download translations-import
+# Live server for `make deploy` (tp.swarmerp.com; nginx serves DEPLOY_DIR).
+DEPLOY_HOST ?= root@47.250.40.219
+DEPLOY_KEY ?= $(HOME)/.ssh/ceyinfo_openclaw_rsa
+DEPLOY_DIR ?= /var/www/tripitaka
+RSYNC_DEPLOY = rsync -a --delete-after --chown=www-data:www-data \
+	-e "ssh -i $(DEPLOY_KEY) -o IdentitiesOnly=yes" site/ $(DEPLOY_HOST):$(DEPLOY_DIR)/
+
+.PHONY: venv crawl load export verify up down psql all api web-install web-dev web-build web dict-download dict-build translations-download translations-import site site-publish deploy deploy-dry
 
 # --- data pipeline ---------------------------------------------------------
 venv:           ## create a venv (auto-bootstraps pip if ensurepip is missing)
@@ -44,6 +51,7 @@ site:           ## build the static site (VITE_STATIC bundle + export -> site/)
 	$(PYTHON) scripts/static_export.py
 
 site-publish:   ## publish site/ to the gh-pages branch (GitHub Pages)
+	git branch -D gh-pages 2>/dev/null || true
 	git checkout --orphan gh-pages
 	git rm -rf -q .
 	cp -r site/. .
@@ -51,6 +59,12 @@ site-publish:   ## publish site/ to the gh-pages branch (GitHub Pages)
 	git commit -m "Static site update"
 	git push -f origin gh-pages
 	git checkout main
+
+deploy: site    ## build the static site and rsync it to the live server (tp.swarmerp.com)
+	$(RSYNC_DEPLOY) --stats
+
+deploy-dry:     ## show what `make deploy` would change on the server (no build, no changes)
+	$(RSYNC_DEPLOY) --dry-run --itemize-changes
 
 all: crawl load export verify
 
